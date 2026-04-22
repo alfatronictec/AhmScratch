@@ -6,6 +6,7 @@ from tkinter import filedialog
 from PIL import Image, ImageTk, ImageEnhance
 from core import load_sb3, gerar_codigo_python
 import subprocess
+from tkinter import font
 
 
 idioma = "pt"
@@ -73,12 +74,7 @@ def carregar_zip():
             print(linha)
 
     except KeyError:
-        if idioma == "pt":
-            mostrar_erro("Código tem uma variável não definida")
-        elif idioma == "en":
-            mostrar_erro("The code contains an undefined variable")
-        elif idioma == "es":
-            mostrar_erro("El código contiene una variable sin definir")
+        mostrar_erro("Código tem uma variável não definida")
 
     except Exception as e:
         # Captura qualquer outro erro e exibe na interface
@@ -122,13 +118,27 @@ barra_progresso = ctk.CTkProgressBar(frame_central, width=400, progress_color="#
 barra_progresso.place(relx=0.5, rely=0.3, anchor="center")
 barra_progresso.set(0)
 
+digital_font = font.Font(
+    family="Digital-7",
+    size=20,
+    weight="bold"
+)
+
 botao_zip = ctk.CTkButton(
     frame_central,
-    text="Carregar .sb3",
+    text="CARREGAR .sb3",
     command=carregar_zip,
-    fg_color="#E98512",       # cor do botão
-    hover_color="#f7e714",    # cor ao passar o mouse
-    text_color="black"          # cor do texto
+
+    font=("Digital-7", 22),   # fonte estilo display
+
+    fg_color="#1a1a1a",       # fundo escuro (tipo painel)
+    hover_color="#2a2a2a",
+
+    text_color="#00FF00",     # verde neon
+    corner_radius=6,
+
+    border_width=2,
+    border_color="#0f0f0f"
 )
 
 botao_zip.place(relx=0.5, rely=0.45, anchor="center")
@@ -159,7 +169,6 @@ def get_base_path():
 
     raise Exception("Não foi possível criar diretório em nenhum local.")
     
-
 def get_nome_arquivo():
     nomes = {
         "pt": "codigo_gerado.asm"
