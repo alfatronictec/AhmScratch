@@ -8,6 +8,13 @@ from core import load_sb3, gerar_codigo_python
 import subprocess
 from tkinter import font
 
+# Precisa contar o numero de variaveis para colocar o ORG 128 e ORG 0
+# JN Pula se negativo
+# JP Pula se positivo
+
+# JZ Pula se valor é zero
+# JNZ Pula se valor não é zero
+
 
 idioma = "pt"
 codigo_python = 0
@@ -171,9 +178,9 @@ def get_base_path():
     
 def get_nome_arquivo():
     nomes = {
-        "pt": "codigo_gerado.asm"
+        "pt": "codigo_gerado.ahd"
     }
-    return nomes.get(idioma, "codigo_gerado.asm")
+    return nomes.get(idioma, "codigo_gerado.ahd")
 
 def gerar_assembly(codigo_python):
 
@@ -191,7 +198,7 @@ def gerar_assembly(codigo_python):
 
     with open(caminho_arquivo, "w", encoding="utf-8") as f:
 
-        f.write(".text\n\n")
+        f.write("        ORG 128\n\n")
 
         for linha in codigo_python:
 
@@ -226,10 +233,7 @@ def gerar_assembly(codigo_python):
                 
                 # Geração do assembly
                 if valor is not None:
-                    f.write(
-                            f"   li t{reg_var}, {valor}                 "
-                            f"# Armazena o valor {valor} no registrador t{reg_var}\n\n"
-                    )
+                    f.write( f"{var}:   DB   {valor}" f"   ; Armazena a variavel {var} com valor inicial {valor} na posição de memoria { 128 + reg_var}\n\n" )
 
             # =========================
             # SOMA
@@ -310,7 +314,7 @@ def gerar_assembly(codigo_python):
                     registradores[var_dest] = reg_dest
                     reg += 1
 
-                    if reg > 6:
+                    if reg > 1:
                         raise Exception(f"Código Ultrapassou o Número de Variáveis Permitido")
                         
                 # Geração do assembly
@@ -318,19 +322,9 @@ def gerar_assembly(codigo_python):
 
                 ultimo_reg = reg_dest
             
-            # =========================
-            # PRINT
-            # =========================
-            elif linha.startswith("p="):
-
-                var = linha.split("=")[1].strip()
-                r = registradores[var]
-                f.write("   li a7, 1             # Carrega o valor 1 no registrador a7, que define o codigo da syscall (servico do sistema), 1 = imprimir inteiro (print integer) \n")
-                f.write(f"   add a0, t{r}, zero    # Copia o valor do registrador t2 para a0, a0 é o registrador usado para passar o argumento da syscall, o inteiro que será impresso  \n") 
-                f.write("   ecall                # Executa uma chamada de sistema (environment call)\n\n")
 
             # =========================
-            # IF IGUAL (BEQ)
+            # IF IGUAL
             # =========================
             elif linha.startswith("i=="):
                 conteudo = linha[len("i=="):].strip()
@@ -360,7 +354,7 @@ def gerar_assembly(codigo_python):
                 f.write(f"   j {label_end}              # Salta para {label_end} se diferente \n\n")
                         
             # =========================
-            # IF MAIOR (BGT)
+            # IF MAIOR
             # =========================
             elif linha.startswith("i>="):
                 conteudo = linha[len("i>="):].strip()
@@ -392,7 +386,7 @@ def gerar_assembly(codigo_python):
                 f.write(f"   j {label_end}              # Senao, pula para {label_end}\n\n")
 
             # =========================
-            # IF MENOR (BLT)
+            # IF MENOR 
             # =========================
             elif linha.startswith("i<="):
                 conteudo = linha[len("i<="):].strip()
